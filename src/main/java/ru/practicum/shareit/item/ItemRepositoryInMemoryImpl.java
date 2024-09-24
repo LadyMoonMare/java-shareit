@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -18,7 +19,9 @@ public class ItemRepositoryInMemoryImpl implements ItemRepository{
 
     @Override
     public List<Item> findByUserId(long userId) {
-        return null;
+        return items.values().stream()
+                .filter(u -> u.getOwner().getId().equals(userId))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -44,10 +47,5 @@ public class ItemRepositoryInMemoryImpl implements ItemRepository{
         log.info("attempt to update in memory item with id {}", itemId);
         items.put(itemId,item);
         return item;
-    }
-
-    @Override
-    public void deleteByUserIdAndItemId(long userId, long itemId) {
-
     }
 }

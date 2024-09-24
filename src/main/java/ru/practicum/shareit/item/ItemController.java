@@ -27,6 +27,12 @@ class ItemController {
     }
 
     @Validated
+    @GetMapping("/{itemId}")
+    public ItemDto getItem(@PathVariable @Positive long itemId) {
+        return itemService.getItemById(itemId);
+    }
+
+    @Validated
     @PostMapping
     public ItemDto add(@RequestHeader(name = "X-Sharer-User-Id") @Positive Long userId,
                     @RequestBody @Valid Item item) {

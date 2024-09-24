@@ -14,6 +14,4 @@ interface ItemRepository {
     Optional<Item> findItemById(Long itemId);
 
     Item update(Long itemId, Item item);
-
-    void deleteByUserIdAndItemId(long userId, long itemId);
 }
