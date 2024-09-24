@@ -8,6 +8,7 @@ import ru.practicum.shareit.util.IdGenerator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @Slf4j
@@ -29,6 +30,19 @@ public class ItemRepositoryInMemoryImpl implements ItemRepository{
 
         items.put(item.getId(), item);
         log.info("user successfully added to memory: {}", items.get(item.getId()));
+        return item;
+    }
+
+    @Override
+    public Optional<Item> findItemById(Long itemId) {
+        log.info("attempt to find item with id {}", itemId);
+        return Optional.ofNullable(items.get(itemId));
+    }
+
+    @Override
+    public Item update(Long itemId, Item item) {
+        log.info("attempt to update in memory item with id {}", itemId);
+        items.put(itemId,item);
         return item;
     }
 

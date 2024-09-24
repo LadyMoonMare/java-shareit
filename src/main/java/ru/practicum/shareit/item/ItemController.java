@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exception.InvalidDataException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
@@ -34,9 +35,11 @@ class ItemController {
     }
 
     @Validated
-    @DeleteMapping("/{itemId}")
-    public void deleteItem(@RequestHeader("X-Sharer-User-Id") @Positive long userId,
-                           @PathVariable(name = "itemId") long itemId) {
-        itemService.deleteItem(userId, itemId);
+    @PatchMapping("/{itemId}")
+    public  ItemDto update(@RequestHeader(name = "X-Sharer-User-Id") @Positive Long userId,
+            @PathVariable @Positive Long itemId, @RequestBody Item item) {
+        log.info("request to add item {} from userId = {}", item, userId);
+        return itemService.updateItem(userId, itemId, item);
     }
+
 }
