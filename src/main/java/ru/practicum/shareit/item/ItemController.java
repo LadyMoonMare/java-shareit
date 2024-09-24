@@ -48,4 +48,10 @@ class ItemController {
         return itemService.updateItem(userId, itemId, item);
     }
 
+    @GetMapping("/search")
+    public List<ItemDto> search(@RequestParam("text") String text) {
+        log.info("request to search text {} in item list", text);
+        return itemService.searchForItems(text);
+    }
+
 }

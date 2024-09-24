@@ -15,4 +15,5 @@ public interface ItemService {
 
     ItemDto updateItem(Long userId, Long itemId, Item item);
 
+    List<ItemDto> searchForItems(String text);
 }

@@ -14,4 +14,6 @@ interface ItemRepository {
     Optional<Item> findItemById(Long itemId);
 
     Item update(Long itemId, Item item);
+
+    List<Item> findItemsByText(String text);
 }

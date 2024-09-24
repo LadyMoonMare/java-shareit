@@ -5,10 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.util.IdGenerator;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -47,5 +44,18 @@ public class ItemRepositoryInMemoryImpl implements ItemRepository{
         log.info("attempt to update in memory item with id {}", itemId);
         items.put(itemId,item);
         return item;
+    }
+
+    @Override
+    public List<Item> findItemsByText(String text) {
+        if (text.isEmpty() || text.isBlank()) {
+            return new ArrayList<>();
+        }
+        return items.values().stream()
+                .filter(i ->
+                        i.getName().toLowerCase().contains(text.toLowerCase())
+                || i.getDescription().toLowerCase().contains(text.toLowerCase()))
+                .filter(i -> i.getAvailable().equals(true))
+                .collect(Collectors.toList());
     }
 }

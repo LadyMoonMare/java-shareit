@@ -68,6 +68,14 @@ public class ItemServiceImpl implements ItemService{
         return ItemMapper.toItemDto(getItem(itemId));
     }
 
+    @Override
+    public List<ItemDto> searchForItems(String text) {
+        List<Item> items = itemRepository.findItemsByText(text);
+        return items.stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
+    }
+
     private User getUser(Long userId) {
         return userRepository.findUserById(userId).orElseThrow(() -> {
             log.warn("user with id =  {} is not existing", userId);
