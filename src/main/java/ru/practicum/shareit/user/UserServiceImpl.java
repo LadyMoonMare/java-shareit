@@ -13,6 +13,7 @@ import ru.practicum.shareit.user.model.User;
 @Slf4j
 @RequiredArgsConstructor
 class UserServiceImpl implements UserService {
+
     private final UserRepository userRepository;
 
     @Override
