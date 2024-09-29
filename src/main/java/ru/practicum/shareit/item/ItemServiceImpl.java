@@ -11,6 +11,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +26,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> getItems(Long userId) {
         log.info("validation of existence of user{}", userId);
         User user = getUser(userId);
-        List<Item> items = itemRepository.findByUserId(userId);
+        List<Item> items = itemRepository.getByOwnerId(userId);
         return items.stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
@@ -60,7 +61,7 @@ public class ItemServiceImpl implements ItemService {
             updateItem.setAvailable(item.getAvailable());
         }
 
-        return ItemMapper.toItemDto(itemRepository.update(itemId, updateItem));
+        return ItemMapper.toItemDto(itemRepository.save(updateItem));
     }
 
     @Override
@@ -70,21 +71,26 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> searchForItems(String text) {
-        List<Item> items = itemRepository.findItemsByText(text);
+        if (text == null || text.isEmpty() || text.isBlank()) {
+            log.info("empty search");
+            return new ArrayList<>();
+        }
+        log.info("search from items to {}", text);
+        List<Item> items = itemRepository.search(text);
         return items.stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
     private User getUser(Long userId) {
-        return userRepository.findUserById(userId).orElseThrow(() -> {
+        return userRepository.findById(userId).orElseThrow(() -> {
             log.warn("user with id =  {} is not existing", userId);
             return new NotFoundException("User is not found");
         });
     }
 
     private Item getItem(Long itemId) {
-        return itemRepository.findItemById(itemId).orElseThrow(() -> {
+        return itemRepository.findById(itemId).orElseThrow(() -> {
             log.warn("item with id =  {} is not existing", itemId);
             return new NotFoundException("Item is not found");
         });
