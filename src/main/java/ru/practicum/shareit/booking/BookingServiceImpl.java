@@ -4,9 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.ItemBookingDto;
+import ru.practicum.shareit.booking.dto.RequestBookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.InvalidDataException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
@@ -23,14 +24,11 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
 
     @Override
-    public BookingDto save(Long userId, Long itemId, ItemBookingDto bookingDto) {
+    public BookingDto save(Long userId, Long itemId, RequestBookingDto bookingDto) {
         Booking booking = BookingMapper.fromItemBookingDto(bookingDto);
 
         log.info("validation by userId {}", userId);
-        User user =userRepository.findById(userId).orElseThrow(() -> {
-            log.warn("user with id =  {} does not exist", userId);
-            return new NotFoundException("User is not found");
-        });
+        User user = getUser(userId);
         booking.setBooker(user);
 
         log.info("validation by itemId {}", itemId);
@@ -46,4 +44,40 @@ public class BookingServiceImpl implements BookingService {
 
         return BookingMapper.toDto(bookingRepository.save(booking));
     }
+
+    @Override
+    public BookingDto approve(Long userId, Long bookingId, boolean approved) {
+        log.info("validation by bookingId {}", bookingId);
+        Booking booking = getBooking(bookingId);
+
+        log.info("validation userId {} to be ownerId", userId);
+        Item item = booking.getItem();
+        if (!item.getOwner().getId().equals(userId)) {
+            throw new ForbiddenException("Access is forbidden for users except owner");
+        }
+
+        //patching of booking status
+        if (approved) {
+            booking.setStatus(Status.APPROVED);
+        } else {
+            booking.setStatus(Status.REJECTED);
+        }
+        Booking patchedBooking = bookingRepository.save(booking);
+        return BookingMapper.toDto(patchedBooking);
+    }
+
+    private User getUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> {
+            log.warn("user with id =  {} does not exist", userId);
+            return new NotFoundException("User is not found");
+        });
+    }
+
+    private Booking getBooking(Long bookingId) {
+        return bookingRepository.findById(bookingId).orElseThrow(() -> {
+            log.warn("user with id =  {} does not exist", bookingId);
+            return new NotFoundException("Booking is not found");
+        });
+    }
+
 }
