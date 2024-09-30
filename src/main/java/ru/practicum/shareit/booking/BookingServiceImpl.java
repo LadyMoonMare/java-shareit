@@ -66,6 +66,20 @@ public class BookingServiceImpl implements BookingService {
         return BookingMapper.toDto(patchedBooking);
     }
 
+    @Override
+    public BookingDto getBookingById(Long userId, Long bookingId) {
+        log.info("validation by bookingId {}", bookingId);
+        Booking booking = getBooking(bookingId);
+
+        log.info("validation userId {} to be owner or booker", userId);
+        Item item = booking.getItem();
+        if (item.getOwner().getId().equals(userId) || booking.getBooker().getId().equals(userId)) {
+            return BookingMapper.toDto(booking);
+        } else {
+            throw new ForbiddenException("Access is forbidden for users except owner or booker");
+        }
+    }
+
     private User getUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> {
             log.warn("user with id =  {} does not exist", userId);

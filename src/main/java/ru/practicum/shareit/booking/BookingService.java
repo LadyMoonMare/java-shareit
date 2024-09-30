@@ -7,4 +7,6 @@ public interface BookingService {
     BookingDto save(Long userId, Long itemId, RequestBookingDto bookingDto);
 
     BookingDto approve(Long userId, Long bookingId, boolean approved);
+
+    BookingDto getBookingById(Long userId, Long bookingId);
 }

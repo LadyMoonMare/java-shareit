@@ -42,6 +42,14 @@ public class BookingController {
         return bookingService.approve(userId, bookingId, approved);
     }
 
+    @Validated
+    @GetMapping("/{bookingId}")
+    public BookingDto getBooking(@RequestHeader("X-Sharer-User-Id") @Positive long userId,
+                                 @PathVariable(name = "bookingId") @Positive long bookingId) {
+        log.info("request to approve get {} by user {}", bookingId, userId);
+        return bookingService.getBookingById(userId, bookingId);
+    }
+
     private void validateTime(RequestBookingDto booking) {
         if (booking.getStart() == booking.getEnd()
                 || booking.getEnd().isBefore(LocalDateTime.now())
