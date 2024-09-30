@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.Instant;
-
 /**
  * TODO Sprint add-item-requests.
  */

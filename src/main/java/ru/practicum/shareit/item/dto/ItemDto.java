@@ -4,9 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.item.comment.dto.CommentDto;
-
-import java.util.List;
 
 @Data
 @Builder

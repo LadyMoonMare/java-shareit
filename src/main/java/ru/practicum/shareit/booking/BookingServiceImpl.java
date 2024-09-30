@@ -28,7 +28,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    private final Comparator<Booking> comparator= new Comparator<Booking>() {
+    private final Comparator<Booking> comparator = new Comparator<Booking>() {
         @Override
         public int compare(Booking o1, Booking o2) {
             if (o1.getStart().isAfter(o2.getStart())) return 1;
@@ -137,7 +137,7 @@ public class BookingServiceImpl implements BookingService {
 
         log.info("validation to user`s {} items", userId);
         List<Item> items = itemRepository.getByOwner_Id(userId);
-        if(items.isEmpty()) {
+        if (items.isEmpty()) {
             log.warn("user {} has no items", userId);
             throw new NotFoundException("You have not got any items");
         }
