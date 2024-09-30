@@ -6,7 +6,8 @@ import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
 
-interface ItemRepository extends JpaRepository<Item, Long> {
+
+public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> getByOwnerId(Long ownerId);
 
     @Query(" select i from Item i " +

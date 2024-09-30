@@ -2,12 +2,14 @@ package ru.practicum.shareit.booking.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bookings")
@@ -18,10 +20,10 @@ public class Booking {
     private Long id;
     @NotNull
     @Column(name = "start_date", nullable = false)
-    private Instant start;
+    private LocalDateTime start;
     @NotNull
     @Column(name = "end_date", nullable = false)
-    private Instant end;
+    private LocalDateTime end;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", referencedColumnName = "id")
     private Item item;
@@ -30,4 +32,11 @@ public class Booking {
     private User booker;
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    public Booking(LocalDateTime start, LocalDateTime end) {
+        this.end = end;
+        this.start = start;
+        status = Status.WAITING;
+    }
+
 }
