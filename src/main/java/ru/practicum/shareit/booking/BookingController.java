@@ -14,6 +14,7 @@ import ru.practicum.shareit.exception.InvalidDataException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "/bookings")
@@ -48,6 +49,22 @@ public class BookingController {
                                  @PathVariable(name = "bookingId") @Positive long bookingId) {
         log.info("request to approve get {} by user {}", bookingId, userId);
         return bookingService.getBookingById(userId, bookingId);
+    }
+
+    @Validated
+    @GetMapping
+    public List<BookingDto> getBookings(@RequestHeader("X-Sharer-User-Id") @Positive long userId,
+                                        @RequestParam(name = "state",defaultValue = "ALL") String state) {
+        log.info("request to get {} bookings by booker {}",state, userId);
+        return bookingService.getBookingsByBooker(userId, state);
+    }
+
+    @Validated
+    @GetMapping("/owner")
+    public List<BookingDto> getOwnerBookings(@RequestHeader("X-Sharer-User-Id") @Positive long userId,
+                                        @RequestParam(name = "state",defaultValue = "ALL") String state) {
+        log.info("request to get {} bookings by owner {}",state, userId);
+        return bookingService.getBookingsByOwner(userId, state);
     }
 
     private void validateTime(RequestBookingDto booking) {

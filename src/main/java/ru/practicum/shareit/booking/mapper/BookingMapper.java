@@ -3,7 +3,7 @@ package ru.practicum.shareit.booking.mapper;
 import ru.practicum.shareit.booking.dto.RequestBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.item.mapper.BookingItemMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.user.mapper.UserMapper;
 
 import java.time.LocalDateTime;
@@ -15,7 +15,7 @@ public class BookingMapper {
                 .start(LocalDateTime.from(booking.getStart()))
                 .end(LocalDateTime.from(booking.getEnd()))
                 .booker(UserMapper.toUserDto(booking.getBooker()))
-                .item(BookingItemMapper.toDto(booking.getItem()))
+                .item(ItemMapper.toDto(booking.getItem()))
                 .status(booking.getStatus())
                 .build();
     }
