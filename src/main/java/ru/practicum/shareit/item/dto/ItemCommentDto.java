@@ -12,9 +12,10 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemDto { //dto for item entity
+public class ItemCommentDto {
     private Long id;
     private String name;
     private String description;
     private Boolean available;
+    private List<CommentDto> comments;
 }

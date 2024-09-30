@@ -9,11 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.RequestBookingDto;
-import ru.practicum.shareit.exception.InvalidDataException;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.chrono.ChronoLocalDateTime;
 import java.util.List;
 
 @RestController
@@ -29,7 +25,6 @@ public class BookingController {
     public BookingDto addBooking(@RequestHeader("X-Sharer-User-Id") @Positive long userId,
                                  @RequestBody @Valid RequestBookingDto bookingDto) {
         log.info("request to book item {} by user {}", bookingDto.getItemId(), userId);
-        validateTime(bookingDto);
 
         return bookingService.save(userId, bookingDto.getItemId(), bookingDto);
     }
@@ -67,12 +62,4 @@ public class BookingController {
         return bookingService.getBookingsByOwner(userId, state);
     }
 
-    private void validateTime(RequestBookingDto booking) {
-        if (booking.getStart() == booking.getEnd()
-                || booking.getEnd().isBefore(LocalDateTime.now())
-                || booking.getStart().isBefore(LocalDateTime.now())) {
-            log.warn("Invalid time exception");
-            throw new InvalidDataException("Invalid time of start or finish");
-        }
-    }
 }

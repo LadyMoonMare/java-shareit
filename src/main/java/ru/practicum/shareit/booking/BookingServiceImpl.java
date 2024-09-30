@@ -136,7 +136,7 @@ public class BookingServiceImpl implements BookingService {
         User user = getUser(userId);
 
         log.info("validation to user`s {} items", userId);
-        List<Item> items = itemRepository.getByOwnerId(userId);
+        List<Item> items = itemRepository.getByOwner_Id(userId);
         if(items.isEmpty()) {
             log.warn("user {} has no items", userId);
             throw new NotFoundException("You have not got any items");

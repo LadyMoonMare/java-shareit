@@ -4,11 +4,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.TimeBookingDto;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.ForbiddenException;
+import ru.practicum.shareit.exception.InvalidDataException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.comment.CommentMapper;
+import ru.practicum.shareit.item.comment.CommentRepository;
+import ru.practicum.shareit.item.comment.dto.CommentDto;
+import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.dto.BookingItemDto;
+import ru.practicum.shareit.item.dto.ItemCommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -27,37 +35,42 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     public List<BookingItemDto> getItems(Long userId) {
         log.info("validation of existence of user{}", userId);
         User user = getUser(userId);
-        List<Item> items = itemRepository.getByOwnerId(userId);
-        List<BookingItemDto> dtos =  new ArrayList<>();
-        TimeBookingDto lastBooking = null;
-        TimeBookingDto nextBooking = null;
+        List<Item> items = itemRepository.getByOwner_Id(userId);
+        log.info("{}",items);
 
+        //adding booking times
+        List<BookingItemDto> dtos =  new ArrayList<>();
         for (Item i : items) {
+            BookingItemDto dto = new BookingItemDto(
+                    i.getId(),
+                    i.getName(),
+                    i.getDescription(),
+                    i.getAvailable());
+
+            //adding comments
+            List<CommentDto> comments = commentRepository.findByItem_id(i.getId()).stream()
+                    .map(CommentMapper::toDto)
+                    .collect(Collectors.toList());
+            dto.setComments(comments);
+
             List<Booking> bookings = bookingRepository.findByItem_id(i.getId());
             for (Booking b : bookings) {
                 if ((b.getStart().isBefore(LocalDateTime.now()) &&
                         b.getEnd().isAfter(LocalDateTime.now()))) {
-                    lastBooking = new TimeBookingDto(b.getStart(), b.getEnd());
-
+                    dto.setLastBooking(BookingMapper.toDto(b));
                     break;
                 }
                 if (b.getStart().isAfter(LocalDateTime.now())) {
-                    nextBooking = new TimeBookingDto(b.getStart(), b.getEnd());
+                    dto.setNextBooking(BookingMapper.toDto(b));
                 }
-
             }
-            dtos.add(new BookingItemDto(
-                    i.getId(),
-                    i.getName(),
-                    i.getDescription(),
-                    lastBooking,
-                    nextBooking)
-            );
+            dtos.add(dto);
         }
         return dtos;
     }
@@ -95,8 +108,28 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItemById(Long itemId) {
-        return ItemMapper.toItemDto(getItem(itemId));
+    public BookingItemDto getItemById(Long itemId) {
+        Item item = getItem(itemId);
+        BookingItemDto dto = new BookingItemDto(item.getId(), item.getName(), item.getDescription(),
+                item.getAvailable());
+
+        List<CommentDto> comments = commentRepository.findByItem_id(itemId).stream()
+                .map(CommentMapper::toDto)
+                .collect(Collectors.toList());
+        dto.setComments(comments);
+
+        List<Booking> bookings = bookingRepository.findByItem_id(itemId);
+        for (Booking b : bookings) {
+            if ((b.getStart().isBefore(LocalDateTime.now()) &&
+                    b.getEnd().isAfter(LocalDateTime.now()))) {
+                dto.setLastBooking(BookingMapper.toDto(b));
+            }
+            if (b.getStart().isAfter(LocalDateTime.now())) {
+                dto.setNextBooking(BookingMapper.toDto(b));
+            }
+        }
+
+        return dto;
     }
 
     @Override
@@ -110,6 +143,31 @@ public class ItemServiceImpl implements ItemService {
         return items.stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public CommentDto addComment(Long userId, Long itemId, Comment comment) {
+        log.info("validation of existence of item {}", itemId);
+        Item item = getItem(itemId);
+        log.info("validation of existence of author {}", userId);
+        User user = getUser(userId);
+
+        log.info("booking validation");
+        Booking booking = bookingRepository.findByBooker_idAndItem_id(userId, itemId).orElseThrow(() -> {
+            log.warn("booking with id is not existing");
+            return new InvalidDataException("invalid booking");
+        });
+        if (booking.getEnd().isAfter(LocalDateTime.now())) {
+            log.warn("booking in progress");
+            throw new InvalidDataException("Access forbidden, your booking in progress");
+        }
+
+        //setting params to comment
+        comment.setUser(user);
+        comment.setItem(item);
+        comment.setCreated(LocalDateTime.now());
+
+        return CommentMapper.toDto(commentRepository.save(comment));
     }
 
     private User getUser(Long userId) {
