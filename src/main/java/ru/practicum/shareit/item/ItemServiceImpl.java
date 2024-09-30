@@ -3,14 +3,19 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.dto.TimeBookingDto;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.dto.BookingItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,15 +26,40 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final BookingRepository bookingRepository;
 
     @Override
-    public List<ItemDto> getItems(Long userId) {
+    public List<BookingItemDto> getItems(Long userId) {
         log.info("validation of existence of user{}", userId);
         User user = getUser(userId);
         List<Item> items = itemRepository.getByOwnerId(userId);
-        return items.stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+        List<BookingItemDto> dtos =  new ArrayList<>();
+        TimeBookingDto lastBooking = null;
+        TimeBookingDto nextBooking = null;
+
+        for (Item i : items) {
+            List<Booking> bookings = bookingRepository.findByItem_id(i.getId());
+            for (Booking b : bookings) {
+                if ((b.getStart().isBefore(LocalDateTime.now()) &&
+                        b.getEnd().isAfter(LocalDateTime.now()))) {
+                    lastBooking = new TimeBookingDto(b.getStart(), b.getEnd());
+
+                    break;
+                }
+                if (b.getStart().isAfter(LocalDateTime.now())) {
+                    nextBooking = new TimeBookingDto(b.getStart(), b.getEnd());
+                }
+
+            }
+            dtos.add(new BookingItemDto(
+                    i.getId(),
+                    i.getName(),
+                    i.getDescription(),
+                    lastBooking,
+                    nextBooking)
+            );
+        }
+        return dtos;
     }
 
     @Override

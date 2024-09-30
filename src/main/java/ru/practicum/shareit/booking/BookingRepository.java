@@ -54,5 +54,5 @@ public interface BookingRepository extends JpaRepository<Booking,Long> {
             "and b.start < ?2",nativeQuery = true)
     List<Booking> findByOwner_IdAndStartIsAfter(Long owner_id, LocalDateTime time);
 
-
+    List<Booking> findByItem_id(Long item_id);
 }

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.BookingItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
@@ -21,7 +22,7 @@ class ItemController {
 
     @Validated
     @GetMapping
-    public List<ItemDto> get(@RequestHeader("X-Sharer-User-Id") @Positive long userId) {
+    public List<BookingItemDto> get(@RequestHeader("X-Sharer-User-Id") @Positive long userId) {
         return itemService.getItems(userId);
     }
 
