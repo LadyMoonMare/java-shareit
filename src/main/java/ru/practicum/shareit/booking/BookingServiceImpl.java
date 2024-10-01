@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.RequestBookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -37,6 +38,7 @@ public class BookingServiceImpl implements BookingService {
     };
 
     @Override
+    @Transactional
     public BookingDto save(Long userId, Long itemId, RequestBookingDto bookingDto) {
         Booking booking = BookingMapper.fromItemBookingDto(bookingDto);
 
@@ -59,6 +61,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public BookingDto approve(Long userId, Long bookingId, boolean approved) {
         log.info("validation by bookingId {}", bookingId);
         Booking booking = getBooking(bookingId);
@@ -102,26 +105,29 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings = new ArrayList<>();
         try {
             State state = State.valueOf(text);
-            if (state.equals(State.ALL)) {
-                log.info("search for all user`s bookings");
-                bookings = bookingRepository.findByBooker_Id(userId);
-            } else if (state.equals(State.WAITING)) {
-                log.info("search for waiting user`s bookings");
-                bookings = bookingRepository.findByBooker_IdAndStatus(userId,
-                        Status.WAITING);
-            } else if (state.equals(State.REJECTED)) {
-                log.info("search for rejected user`s bookings");
-                bookings = bookingRepository.findByBooker_IdAndStatus(userId,
-                        Status.REJECTED);
-            } else if (state.equals(State.CURRENT)) {
-                log.info("search for current user`s bookings");
-                bookings = bookingRepository.findByBooker_IdAndEndIsAfter(userId, LocalDateTime.now());
-            } else if (state.equals(State.PAST)) {
-                log.info("search for past user`s bookings");
-                bookings = bookingRepository.findByBooker_IdAndEndIsBefore(userId, LocalDateTime.now());
-            } else if (state.equals(State.FUTURE)) {
-                log.info("search for future user`s bookings");
-                bookings = bookingRepository.findByBooker_IdAndStartIsAfter(userId, LocalDateTime.now());
+            switch (state) {
+                case ALL -> {
+                    log.info("search for all user`s bookings");
+                    bookings = bookingRepository.findByBooker_Id(userId);
+                } case WAITING -> {
+                    log.info("search for waiting user`s bookings");
+                    bookings = bookingRepository.findByBooker_IdAndStatus(userId, Status.WAITING);
+                } case REJECTED -> {
+                    log.info("search for rejected user`s bookings");
+                    bookings = bookingRepository.findByBooker_IdAndStatus(userId, Status.REJECTED);
+                } case CURRENT -> {
+                    log.info("search for current user`s bookings");
+                    bookings = bookingRepository.findByBooker_IdAndEndIsAfter(userId,
+                            LocalDateTime.now());
+                } case PAST -> {
+                    log.info("search for past user`s bookings");
+                    bookings = bookingRepository.findByBooker_IdAndEndIsBefore(userId,
+                            LocalDateTime.now());
+                } case FUTURE -> {
+                    log.info("search for future user`s bookings");
+                    bookings = bookingRepository.findByBooker_IdAndStartIsAfter(userId,
+                            LocalDateTime.now());
+                }
             }
         } catch (IllegalArgumentException e) {
             log.warn("illegal state {}", text);
@@ -146,26 +152,29 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings = new ArrayList<>();
         try {
             State state = State.valueOf(text);
-            if (state.equals(State.ALL)) {
-                log.info("search for all owner`s bookings");
-                bookings = bookingRepository.findByOwner_Id(userId);
-            } else if (state.equals(State.WAITING)) {
-                log.info("search for waiting owner`s bookings");
-                bookings = bookingRepository.findByOwner_IdAndStatus(userId,
-                        Status.WAITING);
-            } else if (state.equals(State.REJECTED)) {
-                log.info("search for rejected owner`s bookings");
-                bookings = bookingRepository.findByOwner_IdAndStatus(userId,
-                        Status.REJECTED);
-            } else if (state.equals(State.CURRENT)) {
-                log.info("search for current owner`s bookings");
-                bookings = bookingRepository.findByOwner_IdAndEndIsAfter(userId, LocalDateTime.now());
-            } else if (state.equals(State.PAST)) {
-                log.info("search for past owner`s bookings");
-                bookings = bookingRepository.findByOwner_IdAndEndIsBefore(userId, LocalDateTime.now());
-            } else if (state.equals(State.FUTURE)) {
-                log.info("search for future owner`s bookings");
-                bookings = bookingRepository.findByOwner_IdAndStartIsAfter(userId, LocalDateTime.now());
+            switch (state) {
+                case ALL -> {
+                    log.info("search for all owner`s bookings");
+                    bookings = bookingRepository.findByOwner_Id(userId);
+                } case WAITING -> {
+                    log.info("search for waiting owner`s bookings");
+                    bookings = bookingRepository.findByOwner_IdAndStatus(userId, Status.WAITING);
+                } case REJECTED -> {
+                    log.info("search for rejected owner`s bookings");
+                    bookings = bookingRepository.findByOwner_IdAndStatus(userId, Status.REJECTED);
+                } case CURRENT -> {
+                    log.info("search for current owner`s bookings");
+                    bookings = bookingRepository.findByOwner_IdAndEndIsAfter(userId,
+                            LocalDateTime.now());
+                } case PAST -> {
+                    log.info("search for past owner`s bookings");
+                    bookings = bookingRepository.findByOwner_IdAndEndIsBefore(userId,
+                            LocalDateTime.now());
+                } case FUTURE -> {
+                    log.info("search for future owner`s bookings");
+                    bookings = bookingRepository.findByOwner_IdAndStartIsAfter(userId,
+                            LocalDateTime.now());
+                }
             }
         } catch (IllegalArgumentException e) {
             log.warn("illegal state {}", text);

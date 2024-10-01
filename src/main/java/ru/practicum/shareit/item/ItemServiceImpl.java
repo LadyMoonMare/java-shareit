@@ -3,7 +3,9 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.ForbiddenException;
@@ -41,8 +43,13 @@ public class ItemServiceImpl implements ItemService {
         List<Item> items = itemRepository.getByOwner_Id(userId);
         log.info("{}",items);
 
-        //adding booking times
-        List<BookingItemDto> dtos =  new ArrayList<>();
+        //result list
+        List<BookingItemDto> dtos = new ArrayList<>();
+
+        //getting all comments and bookings from repo
+        List<Comment> allComments = commentRepository.findAll();
+        List<Booking> allBookings = bookingRepository.findAll();
+
         for (Item i : items) {
             BookingItemDto dto = new BookingItemDto(
                     i.getId(),
@@ -50,21 +57,26 @@ public class ItemServiceImpl implements ItemService {
                     i.getDescription(),
                     i.getAvailable());
 
-            //adding comments
-            List<CommentDto> comments = commentRepository.findByItem_id(i.getId()).stream()
+            //adding comments to specific item
+            List<CommentDto> comments = allComments.stream()
+                    .filter(c -> c.getItem().equals(i))
                     .map(CommentMapper::toDto)
                     .collect(Collectors.toList());
             dto.setComments(comments);
 
-            List<Booking> bookings = bookingRepository.findByItem_id(i.getId());
-            for (Booking b : bookings) {
+            //adding booking to specific item
+            List<BookingDto> bookings = allBookings.stream()
+                    .filter(b -> b.getItem().equals(i))
+                    .map(BookingMapper::toDto)
+                    .toList();
+            for (BookingDto b : bookings) {
                 if ((b.getStart().isBefore(LocalDateTime.now()) &&
                         b.getEnd().isAfter(LocalDateTime.now()))) {
-                    dto.setLastBooking(BookingMapper.toDto(b));
+                    dto.setLastBooking(b);
                     break;
                 }
                 if (b.getStart().isAfter(LocalDateTime.now())) {
-                    dto.setNextBooking(BookingMapper.toDto(b));
+                    dto.setNextBooking(b);
                 }
             }
             dtos.add(dto);
@@ -73,6 +85,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto addNewItem(Long userId, Item item) {
         log.info("validation of owner for item {}", item);
         User owner = getUser(userId);
@@ -82,6 +95,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto updateItem(Long userId, Long itemId, Item item) {
         log.info("validation of existence of item {}", item);
         Item updateItem = getItem(itemId);
@@ -125,7 +139,6 @@ public class ItemServiceImpl implements ItemService {
                 dto.setNextBooking(BookingMapper.toDto(b));
             }
         }
-
         return dto;
     }
 
@@ -143,6 +156,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public CommentDto addComment(Long userId, Long itemId, Comment comment) {
         log.info("validation of existence of item {}", itemId);
         Item item = getItem(itemId);
