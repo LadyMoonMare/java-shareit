@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.mapper;
 import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.dto.NameIdItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.OwnerItemDto;
 import ru.practicum.shareit.item.model.Item;
 
 @UtilityClass
@@ -21,6 +22,14 @@ public class ItemMapper {
         return NameIdItemDto.builder()
                 .id(item.getId())
                 .name(item.getName())
+                .build();
+    }
+
+    public static OwnerItemDto toOwnerItemDto(Item item) {
+        return OwnerItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .ownerId(item.getOwner().getId())
                 .build();
     }
 
