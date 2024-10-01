@@ -6,6 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.comment.dto.CommentDto;
+import ru.practicum.shareit.item.comment.model.Comment;
+import ru.practicum.shareit.item.dto.BookingItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
@@ -21,13 +24,13 @@ class ItemController {
 
     @Validated
     @GetMapping
-    public List<ItemDto> get(@RequestHeader("X-Sharer-User-Id") @Positive long userId) {
+    public List<BookingItemDto> get(@RequestHeader("X-Sharer-User-Id") @Positive long userId) {
         return itemService.getItems(userId);
     }
 
     @Validated
     @GetMapping("/{itemId}")
-    public ItemDto getItem(@PathVariable @Positive long itemId) {
+    public BookingItemDto getItem(@PathVariable @Positive long itemId) {
         return itemService.getItemById(itemId);
     }
 
@@ -51,6 +54,15 @@ class ItemController {
     public List<ItemDto> search(@RequestParam("text") String text) {
         log.info("request to search text {} in item list", text);
         return itemService.searchForItems(text);
+    }
+
+    @Validated
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@RequestHeader(name = "X-Sharer-User-Id") @Positive Long userId,
+                                 @PathVariable @Positive Long itemId,
+                                 @RequestBody Comment comment) {
+        log.info("request to add comment to item {} from user {}", itemId, userId);
+        return itemService.addComment(userId,itemId, comment);
     }
 
 }
