@@ -34,4 +34,10 @@ public class ItemRequestController {
         log.info("request to get all itemRequests by user {}", userId);
         return requestService.getUserItems(userId);
     }
+
+    @GetMapping("/all")
+    public List<ItemRequestDto> getAllRequests() {
+        log.info("request to get all itemRequests");
+        return requestService.getAllRequests();
+    }
 }

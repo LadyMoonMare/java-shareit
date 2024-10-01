@@ -3,6 +3,7 @@ package ru.practicum.shareit.request;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.OwnerItemDto;
@@ -28,8 +29,19 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository requestRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final Comparator<ItemRequest> comparator = new Comparator<ItemRequest>() {
+        @Override
+        public int compare(ItemRequest o1, ItemRequest o2) {
+            if (o1.getCreated().isBefore(o2.getCreated())) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    };
 
     @Override
+    @Transactional
     public ItemRequestDto addRequest(Long userId, ItemRequest request){
         log.info("validation for user {} existence",userId);
         User user = getUser(userId);
@@ -46,24 +58,15 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         log.info("getting user`s {} requests", userId);
         List<ItemRequestItemDto> userRequests = requestRepository.findByRequestor_Id(userId).stream()
+                .sorted(comparator)
                 .map(ItemRequestMapper::toItemRequestItemDto)
-                .sorted(new Comparator<ItemRequestItemDto>() {
-                    @Override
-                    public int compare(ItemRequestItemDto o1, ItemRequestItemDto o2) {
-                        if (o1.getCreated().isBefore(o2.getCreated())) {
-                            return 1;
-                        } else {
-                            return 0;
-                        }
-                    }
-                })
                 .toList();
 
         //getting all items from bd
         List<Item> allItems = itemRepository.findAll();
 
         //setting item list for specific request
-        List<OwnerItemDto> requestItems;
+        List<OwnerItemDto> requestItems = new ArrayList<>();
         for(ItemRequestItemDto r : userRequests) {
             requestItems = allItems.stream()
                     .filter(i -> i.getRequest().getId().equals(r.getId()))
@@ -72,6 +75,14 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             r.setItems(requestItems);
         }
         return userRequests;
+    }
+
+    @Override
+    public List<ItemRequestDto> getAllRequests() {
+        return requestRepository.findAll().stream()
+                .sorted(comparator)
+                .map(ItemRequestMapper::toItemRequestDto)
+                .collect(Collectors.toList());
     }
 
     private User getUser(Long userId) {
