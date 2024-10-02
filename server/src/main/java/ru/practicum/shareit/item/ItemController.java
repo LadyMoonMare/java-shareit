@@ -37,7 +37,6 @@ class ItemController {
         return itemService.addNewItem(userId, itemDto);
     }
 
-    @Validated
     @PatchMapping("/{itemId}")
     public  ItemDto update(@RequestHeader(name = "X-Sharer-User-Id") Long userId,
             @PathVariable Long itemId, @RequestBody Item item) {
@@ -51,7 +50,6 @@ class ItemController {
         return itemService.searchForItems(text);
     }
 
-    @Validated
     @PostMapping("/{itemId}/comment")
     public CommentDto addComment(@RequestHeader(name = "X-Sharer-User-Id") Long userId,
                                  @PathVariable Long itemId,
