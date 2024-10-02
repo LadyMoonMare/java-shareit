@@ -1,7 +1,5 @@
 package ru.practicum.shareit.item;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -19,34 +17,30 @@ import java.util.List;
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
-@Validated
 class ItemController {
     private final ItemService itemService;
 
-    @Validated
     @GetMapping
-    public List<BookingItemDto> get(@RequestHeader("X-Sharer-User-Id") @Positive long userId) {
+    public List<BookingItemDto> get(@RequestHeader("X-Sharer-User-Id") long userId) {
         return itemService.getItems(userId);
     }
 
-    @Validated
     @GetMapping("/{itemId}")
-    public BookingItemDto getItem(@PathVariable @Positive long itemId) {
+    public BookingItemDto getItem(@PathVariable long itemId) {
         return itemService.getItemById(itemId);
     }
 
-    @Validated
     @PostMapping
-    public RequestItemDto add(@RequestHeader(name = "X-Sharer-User-Id") @Positive Long userId,
-                       @RequestBody @Valid RequestItemDto itemDto) {
+    public RequestItemDto add(@RequestHeader(name = "X-Sharer-User-Id") Long userId,
+                       @RequestBody RequestItemDto itemDto) {
         log.info("request to add item {} from userId = {}", itemDto, userId);
         return itemService.addNewItem(userId, itemDto);
     }
 
     @Validated
     @PatchMapping("/{itemId}")
-    public  ItemDto update(@RequestHeader(name = "X-Sharer-User-Id") @Positive Long userId,
-            @PathVariable @Positive Long itemId, @RequestBody Item item) {
+    public  ItemDto update(@RequestHeader(name = "X-Sharer-User-Id") Long userId,
+            @PathVariable Long itemId, @RequestBody Item item) {
         log.info("request to add item {} from userId = {}", item, userId);
         return itemService.updateItem(userId, itemId, item);
     }
@@ -59,8 +53,8 @@ class ItemController {
 
     @Validated
     @PostMapping("/{itemId}/comment")
-    public CommentDto addComment(@RequestHeader(name = "X-Sharer-User-Id") @Positive Long userId,
-                                 @PathVariable @Positive Long itemId,
+    public CommentDto addComment(@RequestHeader(name = "X-Sharer-User-Id") Long userId,
+                                 @PathVariable Long itemId,
                                  @RequestBody Comment comment) {
         log.info("request to add comment to item {} from user {}", itemId, userId);
         return itemService.addComment(userId,itemId, comment);

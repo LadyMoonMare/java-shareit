@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,7 +18,7 @@ public class ItemRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "description",nullable = false)
-    @NotBlank
+
     private String description;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requestor_id", referencedColumnName = "id")
