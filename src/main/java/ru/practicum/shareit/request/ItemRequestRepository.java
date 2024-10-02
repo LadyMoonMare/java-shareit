@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ItemRequestRepository extends JpaRepository<ItemRequest,Long> {
 
-    List<ItemRequest> findByRequestor_Id(Long requestorId);
+    List<ItemRequest> getByRequestor_Id(Long requestorId);
 }

@@ -4,6 +4,7 @@ import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.dto.NameIdItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.OwnerItemDto;
+import ru.practicum.shareit.item.dto.RequestItemDto;
 import ru.practicum.shareit.item.model.Item;
 
 @UtilityClass
@@ -33,4 +34,20 @@ public class ItemMapper {
                 .build();
     }
 
+    public static Item fromRequestItemDto(RequestItemDto dto) {
+        return Item.builder()
+                .name(dto.getName())
+                .description(dto.getDescription())
+                .available(dto.getAvailable())
+                .build();
+    }
+
+    public static RequestItemDto toRequestItemDto(Item item) {
+        RequestItemDto dto = new RequestItemDto(item.getId(), item.getName(), item.getDescription(),
+        item.getAvailable());
+        if (item.getRequest() != null) {
+            dto.setRequestId(item.getRequest().getId());
+        }
+        return dto;
+    }
 }

@@ -4,6 +4,7 @@ import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.dto.BookingItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.RequestItemDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public interface ItemService {
 
     BookingItemDto getItemById(Long itemId);
 
-    ItemDto addNewItem(Long userId, Item item);
+    RequestItemDto addNewItem(Long userId, RequestItemDto itemDto);
 
     ItemDto updateItem(Long userId, Long itemId, Item item);
 

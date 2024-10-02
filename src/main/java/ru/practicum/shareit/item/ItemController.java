@@ -10,6 +10,7 @@ import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.dto.BookingItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.RequestItemDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
@@ -36,10 +37,10 @@ class ItemController {
 
     @Validated
     @PostMapping
-    public ItemDto add(@RequestHeader(name = "X-Sharer-User-Id") @Positive Long userId,
-                    @RequestBody @Valid Item item) {
-        log.info("request to add item {} from userId = {}", item, userId);
-        return itemService.addNewItem(userId, item);
+    public RequestItemDto add(@RequestHeader(name = "X-Sharer-User-Id") @Positive Long userId,
+                       @RequestBody @Valid RequestItemDto itemDto) {
+        log.info("request to add item {} from userId = {}", itemDto, userId);
+        return itemService.addNewItem(userId, itemDto);
     }
 
     @Validated

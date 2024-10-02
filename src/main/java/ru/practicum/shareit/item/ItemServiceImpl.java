@@ -17,8 +17,11 @@ import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.dto.BookingItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.RequestItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequestRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -35,13 +38,13 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository requestRepository;
 
     @Override
     public List<BookingItemDto> getItems(Long userId) {
         log.info("validation of existence of user{}", userId);
         User user = getUser(userId);
         List<Item> items = itemRepository.getByOwner_Id(userId);
-        log.info("{}",items);
 
         //result list
         List<BookingItemDto> dtos = new ArrayList<>();
@@ -86,12 +89,25 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto addNewItem(Long userId, Item item) {
-        log.info("validation of owner for item {}", item);
+    public RequestItemDto addNewItem(Long userId, RequestItemDto dto) {
+        Item item = ItemMapper.fromRequestItemDto(dto);
+
+        log.info("validation of owner for item {}", dto);
         User owner = getUser(userId);
 
+        if (dto.getRequestId() != null) {
+            log.info("validation of request for item {}", dto);
+            Long requestId = dto.getRequestId();
+            ItemRequest request = requestRepository.findById(requestId).orElseThrow(() -> {
+                log.warn("request with id is not existing");
+                return new InvalidDataException("invalid request");
+            });
+            item.setRequest(request);
+        }
+
         item.setOwner(owner);
-        return ItemMapper.toItemDto(itemRepository.save(item));
+        log.debug("item {}", item);
+        return ItemMapper.toRequestItemDto(itemRepository.save(item));
     }
 
     @Override

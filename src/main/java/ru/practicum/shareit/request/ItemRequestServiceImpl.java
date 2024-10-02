@@ -57,7 +57,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User user = getUser(userId);
 
         log.info("getting user`s {} requests", userId);
-        List<ItemRequestItemDto> userRequests = requestRepository.findByRequestor_Id(userId).stream()
+        List<ItemRequestItemDto> userRequests = requestRepository.getByRequestor_Id(userId).stream()
                 .sorted(comparator)
                 .map(ItemRequestMapper::toItemRequestItemDto)
                 .toList();
@@ -66,9 +66,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         List<Item> allItems = itemRepository.findAll();
 
         //setting item list for specific request
-        List<OwnerItemDto> requestItems = new ArrayList<>();
+        List<OwnerItemDto> requestItems;
         for(ItemRequestItemDto r : userRequests) {
             requestItems = allItems.stream()
+                    .filter(i -> i.getRequest() != null)
                     .filter(i -> i.getRequest().getId().equals(r.getId()))
                     .map(ItemMapper::toOwnerItemDto)
                     .collect(Collectors.toList());
@@ -83,6 +84,23 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 .sorted(comparator)
                 .map(ItemRequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ItemRequestItemDto getRequest(Long requestId) {
+        log.info("validation for request {} existence",requestId);
+        ItemRequest request = requestRepository.findById(requestId).orElseThrow(() -> {
+            log.warn("request with id =  {} is not existing", requestId);
+            return new NotFoundException("request is not found");
+        });
+        ItemRequestItemDto dto = ItemRequestMapper.toItemRequestItemDto(request);
+
+        log.info("getting requests {} items", requestId);
+        List<OwnerItemDto> items = itemRepository.getByRequest_Id(requestId).stream()
+                .map(ItemMapper :: toOwnerItemDto)
+                .toList();
+        dto.setItems(items);
+        return dto;
     }
 
     private User getUser(Long userId) {

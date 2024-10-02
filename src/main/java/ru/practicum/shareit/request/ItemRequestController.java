@@ -40,4 +40,11 @@ public class ItemRequestController {
         log.info("request to get all itemRequests");
         return requestService.getAllRequests();
     }
+
+    @Validated
+    @GetMapping("/{requestId}")
+    public ItemRequestItemDto getRequest(@PathVariable @Positive Long requestId) {
+        log.info("request to get itemRequest {}", requestId);
+        return requestService.getRequest(requestId);
+    }
 }
