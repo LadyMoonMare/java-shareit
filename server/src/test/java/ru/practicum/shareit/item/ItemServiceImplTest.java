@@ -6,20 +6,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.ShareItServer;
-import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.RequestItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 
 @Transactional
-@SpringBootTest(
-        classes = ShareItServer.class,
-        properties = "jdbc.url=jdbc:postgresql://localhost:5432/test")
+@SpringBootTest(classes = ShareItServer.class)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemServiceImplTest {
 
@@ -31,16 +29,18 @@ public class ItemServiceImplTest {
     @Test
     void testSaveItem() {
         User user = new User("some@email.com", "Пётр");
-        userRepository.save(user);
+        User repoUser = userRepository.save(user);
 
-        RequestItemDto item = new RequestItemDto(null,"item", "desc", false,
-                null);
-        service.addNewItem(1L,item);
-        Item repoItem = itemRepository.findById(1L).get();
-        repoItem.setOwner(userRepository.findById(1L).get());
+        RequestItemDto item = new RequestItemDto(null,"name","desc",true);
+        RequestItemDto servItem = service.addNewItem(repoUser.getId(), item);
+        assertThat(servItem.getId(), notNullValue());
+        assertThat(servItem.getName(), equalTo(item.getName()));
+        assertThat(servItem.getDescription(), equalTo(item.getDescription()));
+        assertThat(servItem.getAvailable(), equalTo(item.getAvailable()));
 
-        assertThat(repoItem.getId(), notNullValue());
-        assertThat(repoItem.getName(), equalTo(item.getName()));
-        assertThat(repoItem.getDescription(), equalTo(item.getDescription()));
+        Item repoItem = itemRepository.findById(servItem.getId()).orElseThrow();
+        assertThat(repoItem.getName(), equalTo((servItem.getName())));
+        assertThat(repoItem.getDescription(), equalTo((servItem.getDescription())));
+        assertThat(repoItem.getAvailable(), equalTo(servItem.getAvailable()));
     }
 }
