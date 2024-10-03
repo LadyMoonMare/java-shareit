@@ -1,18 +1,11 @@
 package ru.practicum.shareit.user;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.ShareItServer;
-import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
 
