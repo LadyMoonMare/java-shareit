@@ -16,6 +16,4 @@ import java.time.LocalDateTime;
 public class CommentDto {
     @NotBlank
     private String text;
-    @NotNull
-    private LocalDateTime created;
 }
