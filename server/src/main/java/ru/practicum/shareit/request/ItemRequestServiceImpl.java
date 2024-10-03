@@ -17,7 +17,6 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,7 +41,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     @Transactional
-    public ItemRequestDto addRequest(Long userId, ItemRequest request){
+    public ItemRequestDto addRequest(Long userId, ItemRequest request) {
         log.info("validation for user {} existence",userId);
         User user = getUser(userId);
 
@@ -67,7 +66,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         //setting item list for specific request
         List<OwnerItemDto> requestItems;
-        for(ItemRequestItemDto r : userRequests) {
+        for (ItemRequestItemDto r : userRequests) {
             requestItems = allItems.stream()
                     .filter(i -> i.getRequest() != null)
                     .filter(i -> i.getRequest().getId().equals(r.getId()))
@@ -97,7 +96,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         log.info("getting requests {} items", requestId);
         List<OwnerItemDto> items = itemRepository.getByRequest_Id(requestId).stream()
-                .map(ItemMapper :: toOwnerItemDto)
+                .map(ItemMapper::toOwnerItemDto)
                 .toList();
         dto.setItems(items);
         return dto;

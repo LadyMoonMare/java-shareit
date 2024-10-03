@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.client.BaseClient;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -33,11 +32,11 @@ public class ItemClient extends BaseClient {
         return get("", userId);
     }
 
-    public ResponseEntity<Object> getItem( long itemId) {
+    public ResponseEntity<Object> getItem(long itemId) {
         return get("/" + itemId);
     }
 
-    public ResponseEntity<Object> addItem(long userId, RequestItemDto itemDto){
+    public ResponseEntity<Object> addItem(long userId, RequestItemDto itemDto) {
         return post("", userId, itemDto);
     }
 
