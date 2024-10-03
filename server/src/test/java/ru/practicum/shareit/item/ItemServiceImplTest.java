@@ -20,11 +20,8 @@ import static org.hamcrest.Matchers.*;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemServiceImplTest {
 
-    @Autowired
     private final ItemRepository itemRepository;
-    @Autowired
     private final UserRepository userRepository;
-    @Autowired
     private final ItemService service;
 
 
