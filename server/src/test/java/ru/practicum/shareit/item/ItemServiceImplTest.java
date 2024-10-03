@@ -9,7 +9,6 @@ import ru.practicum.shareit.ShareItServer;
 import ru.practicum.shareit.item.dto.RequestItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
